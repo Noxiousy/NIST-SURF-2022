@@ -4,7 +4,7 @@ To help boost the efficiency of the ZENO program, we will benchmark the runtimes
 
 ## TL;DR - Results
 
-The `contains` query averaged a runtime of *1.35 seconds per one million queries*. The `findClosestPoint` query averaged a runtime of *1.95 seconds per one million*. Randomization (or lack thereof) on each query point had no effect on either query.
+The `contains` query averaged a runtime of *1.35 seconds per one million queries*. The `findClosestPoint` query averaged a runtime of *1.95 seconds per one million*. Randomization (or lack thereof) on each query point had no effect on either runtime.
 
 # API
 
