@@ -42,7 +42,6 @@ int main(int argc, char* argv[])
 	 *	Square 1: (-20, -20, 20), (-20, 20, 20), (20, 20, 20), (20, -20, 20)
 	 */
 
-	// see README.md for vertices and indices explanation/visual
 	pos << 	-20, -20, -20,
 	    	 20, -20, -20,
 		-20,  20, -20,
