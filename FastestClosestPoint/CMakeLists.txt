@@ -4,8 +4,14 @@ project(FastestClosestPoint)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(fcpw.exe fcpw.cpp)
+add_executable(overlap.exe overlap.cpp)
 
 add_subdirectory(fcpw)
+
 target_link_libraries(fcpw.exe fcpw)
 target_include_directories(fcpw.exe PUBLIC ${FCPW_EIGEN_INCLUDES})
 target_include_directories(fcpw.exe PUBLIC ${FCPW_ENOKI_INCLUDES})
+
+target_link_libraries(overlap.exe fcpw)
+target_include_directories(overlap.exe PUBLIC ${FCPW_EIGEN_INCLUDES})
+target_include_directories(overlap.exe PUBLIC ${FCPW_ENOKI_INCLUDES})
