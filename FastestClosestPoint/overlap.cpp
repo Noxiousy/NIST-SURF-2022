@@ -1,3 +1,9 @@
+/*
+	This program has an example contains query with two overlapping cubes.
+	The goal of this program is to show that the contains query under the fcpw
+	library can be used to prove if two 3D shapes are overlapping in space.
+*/
+
 #include <iostream>
 #include <fcpw/fcpw.h>
 
