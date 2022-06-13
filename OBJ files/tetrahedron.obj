@@ -1,0 +1,18 @@
+# simple tetrahedron Object file
+v 1 1 1
+v 1 5 1
+v 5 1 1
+v 1 1 5
+
+# ignore all vn and vt lines
+vn 0 0 0
+vt 1 2 3
+
+# random comment and whitespace
+# to ensure parser ignores unnecessary things
+f 1 2 3
+f 1 2 4
+
+# ensure parser reads first number before slashes
+f 1/0 3/0 4/0 
+f 2//0 3//0 4//0
