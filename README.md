@@ -1,3 +1,10 @@
+
+**Please note that the information in this README.md is not correct. I will work to combine the `fcpw.cpp`, 
+`benchmark.cpp`, and `overlap.cpp` files into one file that can be used to run the `FCPW` library queries. 
+In doing so, this README.md will be updated with more accurate information...**
+
+---
+
 # 2022 SURF Zeno
 
 2022 SURF project on Zeno spatial data structures.
