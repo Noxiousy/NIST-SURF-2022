@@ -25,9 +25,16 @@ int main(int argc, char *argv[])
 	// parse .obj file for vertices and triangle indices
 	parse(vertices, indices, argv[1]);
 	
-	// the indices listed in the .obj file are indexed starting at 1. decrement all values
+	// check the indices for negative values
 	for (int i = 0; i < indices.size(); i++)
-		indices[i] -= 1;
+	{
+		// if indices[i] is negative, convert the reverse, positive index
+		if (indices[i] < 0)
+			indices[i] = indices.size() + indices[i];
+		// else, decrement the positive index by one (all indices are indexed starting at 1
+		else
+			indices[i] -= 1;
+	}
 
 	
 	// ==== CREATING THE SCENE ====
@@ -63,8 +70,12 @@ int main(int argc, char *argv[])
 	// build the scene (true allows vectorization)
 	scene.build(AggregateType::Bvh_SurfaceArea, true);
 
+
+	// ==== QUERIES ====
+
+
 	// create some QUERY POINTS (q1 is outside the tetrahedron, q2 is inside)
-	Vector<3> q1(0, 0, 0), q2(2, 2, 2);
+	Vector<3> q1(0, 0, 0), q2(0.3, 0.5, 0.02);
 
 	// Interactions are passed to closest point query functions to store information about said query
 	Interaction<DIM> interaction;
