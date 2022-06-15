@@ -91,6 +91,17 @@ void parse(vector<vector<float>> &vertices, vector<int> &indices, string file)
 			}
 		}
 
+		// check the indices for negative values
+		for (int i = 0; i < indices.size(); i++)
+		{
+			// convert negative indices into the corresponding positive indices
+			if (indices[i] < 0)
+				indices[i] += indices.size();
+			// decrement positive indices by one (to ensure 0-based indexing)
+			else
+				indices[i] += 1;
+		}
+
 		// close the file
 		objFile.close();
 	}

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <time.h>
 #include <fcpw/fcpw.h>
 
 // my own header file
@@ -13,6 +14,16 @@
 using namespace std;
 using namespace fcpw;
 
+/*
+ * command line is as follows
+ *
+ * Randomized queries:
+ * ./fcpw.exe [.obj file path] [query type (contains or closest_point)] true [# of queries]
+ *
+ * Single query
+ * ./fcpw.exe [.obj file path] [query type] false [x] [y] [z]
+ *
+ */
 int main(int argc, char *argv[])
 {
 	// ==== READING THE .obj FILE ====
@@ -24,20 +35,6 @@ int main(int argc, char *argv[])
 
 	// parse .obj file for vertices and triangle indices
 	parse(vertices, indices, argv[1]);
-	
-	// check the indices for negative values
-	for (int i = 0; i < indices.size(); i++)
-	{
-		// if indices[i] is negative, convert the reverse, positive index
-		if (indices[i] < 0)
-			indices[i] = indices.size() + indices[i];
-		// else, decrement the positive index by one (all indices are indexed starting at 1
-		else
-			indices[i] -= 1;
-	}
-
-	
-	// ==== CREATING THE SCENE ====
 
 
 	// a scene is a spatial index for the shapes and query.
@@ -71,31 +68,102 @@ int main(int argc, char *argv[])
 	scene.build(AggregateType::Bvh_SurfaceArea, true);
 
 
-	// ==== QUERIES ====
+	/* ==== QUERIES ==== */
 
+	
+	// variables
+	bool randomization = (string(argv[3]) == "true" ? true : false);
+	string query = argv[2];
+	clock_t t;
 
-	// create some QUERY POINTS (q1 is outside the tetrahedron, q2 is inside)
-	Vector<3> q1(0, 0, 0), q2(0.3, 0.5, 0.02);
+	// determine if randomization is used
+	if (randomization)
+	{
+		// random queries
+		int n = stoi(argv[4]);
 
-	// Interactions are passed to closest point query functions to store information about said query
-	Interaction<DIM> interaction;
+		// check query type
+		if (query == "contains")
+		{
+			// begin timer
+			t = clock();
 
-	// perform a closest point query within the scene
-	scene.findClosestPoint(q1, interaction);
+			// run n number of trails
+			for (int i = 0; i < n; i++)
+				scene.contains({(float) rand(), (float) rand(), (float) rand()});
 
-	// output of closest point query
-	cout << "--- CLOSEST POINT QUERY ---" << endl;
-	cout << "Query Point: (" << q1[0] << ", " << q1[1] << ", " << q1[2] << ")" << endl;
-	cout << "Closest Point: (" << interaction.p[0] << ", " << interaction.p[1] << ", " << interaction.p[2] << ")" << endl;
-	cout << "Distance from Query Point to Closest Point: " << interaction.d << endl;
-	cout << "Primitive Index of Closest Point: " << interaction.primitiveIndex << endl;
-	cout << "Object Index of Closest Point: " << interaction.objectIndex << endl;
+			// stop timer
+			t = clock() - t;
+		}
+		else if (query == "closest_point")
+		{
+			Interaction<3> interaction;
 
-	// output of contains query
-	cout << endl << "--- CONTAINS QUERY --- " << endl;
-	cout << "Q1: " << scene.contains(q1) << endl;
-	cout << "Q2: " << scene.contains(q2) << endl;
-	cout << "(0 -> false, 1 -> true)" << endl;
+			// begin timer
+			t = clock();
+
+			// run n number of trials
+			for (int i = 0; i < n; i++)
+				scene.findClosestPoint({(float) rand(), (float) rand(), (float) rand()}, interaction);
+
+			// stop timer
+			t = clock() - t;
+		}
+		else
+		{
+			cout << "Please enter \"contains\" or \"closest_point\" for the query argument..." << endl;
+			return 0;
+		}
+
+		// print benchmark
+		cout << "Benchmark:\n" << n << " \"" << query << "\" queries in " << (float) t / CLOCKS_PER_SEC << " seconds." << endl;
+	}
+	else 
+	{
+		// non-random query
+		Vector3 queryPoint(stoi(argv[4]), stof(argv[5]), stof(argv[6]));
+
+		// check query type
+		if (query == "contains")
+		{
+			// begin timer
+			t = clock();
+
+			// query
+			scene.contains(queryPoint);
+
+			// stop timer
+			t = clock() - t;
+
+			// results
+			cout << "Query result:\n" << (bool) scene.contains(queryPoint) << endl;
+		}
+		else if (query == "closest_point")
+		{
+			Interaction<3> interaction;
+
+			// begin timer
+			t = clock();
+
+			// query
+			scene.findClosestPoint(queryPoint, interaction);
+
+			// stop timer
+			t = clock() - t;
+
+			// results
+			cout << "Query results:\nClosest Point: (" << interaction.p[0] << ", " << interaction.p[1] << ", " 
+				<< interaction.p[2] << ")\nDistance Between Query Point & Closest Point: " << interaction.d << endl;
+		}
+		else
+		{
+			cout << "Please enter \"contains\" or \"closest_point\" for the query argument..." << endl;
+			return 0;
+		}
+
+		// print benchmark
+		cout << endl << "Benchmark:\n1 \"" << query << "\" query in " << (float) t / CLOCKS_PER_SEC << " seconds." << endl;
+	}
 
 	return 0;
 }
