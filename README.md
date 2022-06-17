@@ -1,7 +1,10 @@
 # NIST SURF 2022: Updating ZENO Queries
 
 Author: Jaxon Ko
+
 SURF Mentor: Derek Juba
+
+---
 
 For this 2022 SURF project, the queries used throughout the ZENO program will be updated
 with the FCPW C++ library. ZENO is a program that creates spatial data structures mimicing
@@ -35,10 +38,8 @@ To use a specific query point, specify `false` for the fourth command line argum
 
 `[.obj file]` is the file path of the .obj file from this directory.
 `[query]` is the query type (either "contains" or "closest_point").
-* The remaining arguments specify the coordinates of the query point. For 3 dimensions, this would be
-`[x]`, `[y]`, and `[z]`.
-
-* Please note that this code assumes 3D spaces, so at least 3 `float` arguments must be specified. 
+The remaining arguments specify the coordinates of the query point. For 3 dimensions, this would be
+`[x]`, `[y]`, and `[z]`. **Please note that this code assumes 3D spaces, so at least 3 `float` arguments must be specified.**
 
 ---
 
