@@ -1,26 +1,53 @@
+# NIST SURF 2022: Updating ZENO Queries
 
-**Please note that the information in this README.md is not correct. I will work to combine the `fcpw.cpp`, 
-`benchmark.cpp`, and `overlap.cpp` files into one file that can be used to run the `FCPW` library queries. 
-In doing so, this README.md will be updated with more accurate information...**
+Author: Jaxon Ko
+
+SURF Mentor: Derek Juba
 
 ---
 
-# 2022 SURF Zeno
+For this 2022 SURF project, the queries used throughout the ZENO program will be updated
+with the FCPW C++ library. ZENO is a program that creates spatial data structures mimicing
+molecular structures. This data structure can be used to compute material, solution, and 
+suspension properties of specific shapes and molecules. For more information about how ZENO
+works (along with source code), see [this website](https://zeno.nist.gov/). The "Fastest Closest Point In The West"
+(FCPW) library creates its own spatial index, namely `Scene`, with geometric shapes and provides
+efficient queries. The ZENO program will utilize the `findClosestPoint` and `contains` queries.
 
-2022 SURF project on Zeno spatial data structures.
+# Command Line Arguments
 
-This repository contains example programs utilizing the FCPW C++ library. Specifically,
-it showcases how to create a 3D spatial index (called a Scene) with geometric shapes 
-and how to query those shapes/vertices. `FastestClosestPoint/fcpw.cpp` contains "Closest 
-Point" and "Contains" queries. 
+This repository contains source code (`../FastestClosestPoint/fcpw.cpp`) that will read an 
+`.obj` file and create a `Scene` with the shapes listed in the file. After the spatial data 
+structure has been formed, users can specify query details using command line arguments.
 
-All of the source code in this repository utilizes CMake, which also depends on the FCPW directory.
+## Random Queries
+
+To run a random number of queries, specify `true` for the fourth command line argument as follows:
+
+> `./fcpw.exe [.obj file] [query] true [number of trials]`
+
+`[.obj file]` is the file path of the .obj file from this directory.
+`[query]` is the query type (either "contains" or "closest_point").
+`[number of trials]` is the number of random queries that will be benchmarked.
+
+## Non-random Query
+
+To use a specific query point, specify `false` for the fourth command line argument as follows:
+
+> `./fcpw.exe [.obj file] [query] false [x] [y] [z]`
+
+`[.obj file]` is the file path of the .obj file from this directory.
+`[query]` is the query type (either "contains" or "closest_point").
+The remaining arguments specify the coordinates of the query point. For 3 dimensions, this would be
+`[x]`, `[y]`, and `[z]`. **Please note that this code assumes 3D spaces, so at least 3 `float` arguments must be specified.**
+
+---
 
 # FCPW
 
-[The library](https://github.com/rohan-sawhney/fcpw) efficiently runs queries of 2D and 3D shapes.
-The two queries that will be utilized by the ZENO program are the `contains` query and the `findClosestPoint`
-query.
+[The FCPW library](https://github.com/rohan-sawhney/fcpw) efficiently runs queries of 3D shapes.
+The two queries that will be utilized by the ZENO program are the `contains` query and the 
+`findClosestPoint` query.
 
 ##  Contains
 
@@ -61,7 +88,13 @@ interaction.p;   //  closest point (fcpw::Vector<3>)
 interaction.primitiveIndex;
 interaction.objectIndex;
 ```
-# Runtime
 
-See `../benchmark/README.md` for more information about the runtime and efficiencies of both
-queries.
+# Benchmarking FCPW Queries
+
+To help boost the efficiency of the ZENO program, the runtime of `contains` and `findClosestPoint` queries
+will be benchmarked. 
+
+## Results
+
+*I am working to create a spherical bounding box to mimic the ZENO closest point query as best as possible.
+When this has been completed, the benchmarked results will be listed here*
