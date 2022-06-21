@@ -4,6 +4,7 @@ project(FastestClosestPoint)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(fcpw.exe fcpw.cpp)
+add_executable(obj_to_bod.exe obj_to_bod.cpp)
 
 add_subdirectory(fcpw)
 
