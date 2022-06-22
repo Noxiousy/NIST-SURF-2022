@@ -1,30 +1,18 @@
-/*
- * fcpw.cpp now supports .obj file reading to construct geometric shapes
- */
-
 #include <iostream>
 #include <vector>
+#include <tuple>
 #include <string>
+#include <math.h>
 #include <time.h>
 #include <fcpw/fcpw.h>
 
-// my own header file
 #include "read_obj.h"
+#include "bounding_sphere.h"
 
 using namespace std;
 using namespace fcpw;
 
-/*
- * command line is as follows
- *
- * Randomized queries:
- * ./fcpw.exe [.obj file path] [query type (contains or closest_point)] true [# of queries]
- *
- * Single query
- * ./fcpw.exe [.obj file path] [query type] false [x] [y] [z]
- *
- */
-int main(int argc, char *argv[])
+int main(int argc, char** argv)
 {
 	// ==== READING THE .obj FILE ====
 	
@@ -67,6 +55,10 @@ int main(int argc, char *argv[])
 	// build the scene (true allows vectorization)
 	scene.build(AggregateType::Bvh_SurfaceArea, true);
 
+	// create a bounding sphere around the geometry
+	tuple<vector<float>, float> sphere;
+	getBoundingSphere(vertices, sphere);
+
 
 	/* ==== QUERIES ==== */
 
@@ -90,7 +82,10 @@ int main(int argc, char *argv[])
 
 			// run n number of trails
 			for (int i = 0; i < n; i++)
-				scene.contains({(float) rand(), (float) rand(), (float) rand()});
+			{
+				// randomly pick a point within the bounding sphere (see helper function below)
+				scene.contains(getRandomPoint(sphere));
+			}
 
 			// stop timer
 			t = clock() - t;
@@ -104,7 +99,7 @@ int main(int argc, char *argv[])
 
 			// run n number of trials
 			for (int i = 0; i < n; i++)
-				scene.findClosestPoint({(float) rand(), (float) rand(), (float) rand()}, interaction);
+				scene.findClosestPoint(getRandomPoint(sphere), interaction);
 
 			// stop timer
 			t = clock() - t;
