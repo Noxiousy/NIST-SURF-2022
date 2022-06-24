@@ -112,6 +112,9 @@ int main(int argc, char** argv)
 
 		// print benchmark
 		cout << "Benchmark:\n" << n << " \"" << query << "\" queries in " << (float) t / CLOCKS_PER_SEC << " seconds." << endl;
+
+		// print vertex count
+		cout << "Total vertices: " << vertices.size() << endl;
 	}
 	else 
 	{
