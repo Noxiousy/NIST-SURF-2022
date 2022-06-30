@@ -18,12 +18,14 @@ int main(int argc, char** argv)
 	
 
 	// list of integers to store positions
-	vector<vector<float>> vertices;
+	vector<Vector3> vertices;
 	vector<int> indices;
 
 	// parse .obj file for vertices and triangle indices
 	parse(vertices, indices, argv[1]);
-
+	
+	// begin preprocessing timer
+	clock_t t = clock();
 
 	// a scene is a spatial index for the shapes and query.
 	const int DIM = 3;
@@ -52,11 +54,11 @@ int main(int argc, char** argv)
 	for (int i = 0; i < nTriangles; i++)
 		scene.setObjectTriangle(&indices[3 * i], i, 0);
 
-	// build the scene (true allows vectorization)
-	scene.build(AggregateType::Bvh_SurfaceArea, true);
-
+	scene.build(AggregateType::Bvh_Volume, true);
+	cout << "Preprocessing time: " << (float) (clock() - t) / CLOCKS_PER_SEC << " seconds." << endl;
+	
 	// create a bounding sphere around the geometry
-	tuple<vector<float>, float> sphere;
+	tuple<Vector3, float> sphere;
 	getBoundingSphere(vertices, sphere);
 
 
@@ -65,14 +67,14 @@ int main(int argc, char** argv)
 	
 	// variables
 	bool randomization = (string(argv[3]) == "true" ? true : false);
+	int seed = stoi(argv[4]);
 	string query = argv[2];
-	clock_t t;
 
 	// determine if randomization is used
 	if (randomization)
 	{
 		// random queries
-		int n = stoi(argv[4]);
+		int n = stoi(argv[5]);
 
 		// check query type
 		if (query == "contains")
@@ -82,10 +84,7 @@ int main(int argc, char** argv)
 
 			// run n number of trails
 			for (int i = 0; i < n; i++)
-			{
-				// randomly pick a point within the bounding sphere (see helper function below)
-				scene.contains(getRandomPoint(sphere));
-			}
+				scene.contains(getRandomPoint(sphere, seed));
 
 			// stop timer
 			t = clock() - t;
@@ -99,7 +98,7 @@ int main(int argc, char** argv)
 
 			// run n number of trials
 			for (int i = 0; i < n; i++)
-				scene.findClosestPoint(getRandomPoint(sphere), interaction);
+				scene.findClosestPoint(getRandomPoint(sphere, seed), interaction);
 
 			// stop timer
 			t = clock() - t;
@@ -111,7 +110,7 @@ int main(int argc, char** argv)
 		}
 
 		// print benchmark
-		cout << "Benchmark:\n" << n << " \"" << query << "\" queries in " << (float) t / CLOCKS_PER_SEC << " seconds." << endl;
+		cout << "Benchmark: " << n << " \"" << query << "\" queries in " << (float) t / CLOCKS_PER_SEC << " seconds." << endl;
 
 		// print vertex count
 		cout << "Total vertices: " << vertices.size() << endl;
@@ -160,7 +159,7 @@ int main(int argc, char** argv)
 		}
 
 		// print benchmark
-		cout << endl << "Benchmark:\n1 \"" << query << "\" query in " << (float) t / CLOCKS_PER_SEC << " seconds." << endl;
+		cout << endl << "Benchmark: 1 \"" << query << "\" query in " << (float) t / CLOCKS_PER_SEC << " seconds." << endl;
 	}
 
 	return 0;

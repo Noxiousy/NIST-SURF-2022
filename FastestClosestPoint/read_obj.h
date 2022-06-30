@@ -1,14 +1,11 @@
-/*
- * This header file contains a modified parser for reading .obj files
- * The parser is limited to vertices and indices specified by "v" and "f" 
- * lines of text.
- */
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <vector>
+#include <fcpw/fcpw.h>
 
 using namespace std;
+using namespace fcpw;
 
 vector<string> split(string s, string delim)
 {
@@ -40,7 +37,7 @@ vector<string> split(string s, string delim)
 	return result;
 }
 
-void parse(vector<vector<float>> &vertices, vector<int> &indices, string file)
+void parse(vector<Vector3> &vertices, vector<int> &indices, string file)
 {
 	// open the file
 	ifstream objFile(file);
@@ -63,11 +60,9 @@ void parse(vector<vector<float>> &vertices, vector<int> &indices, string file)
 				if (splitLine[0] == "v")
 				{
 					// store float entries in a list of floats
-					vector<float> vertex;
-
-					vertex.push_back(stof(splitLine[1]));
-					vertex.push_back(stof(splitLine[2]));
-					vertex.push_back(stof(splitLine[3]));
+					Vector3 vertex(stof(splitLine[1]),
+						       stof(splitLine[2]),
+						       stof(splitLine[3]));
 
 					// push vertex list into vertices list
 					vertices.push_back(vertex);
@@ -99,7 +94,7 @@ void parse(vector<vector<float>> &vertices, vector<int> &indices, string file)
 				indices[i] += indices.size();
 			// decrement positive indices by one (to ensure 0-based indexing)
 			else
-				indices[i] += 1;
+				indices[i] -= 1;
 		}
 
 		// close the file

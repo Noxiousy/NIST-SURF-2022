@@ -11,6 +11,7 @@
 #include <string>
 #include <fstream>
 
+#include "fcpw/fcpw.h"
 #include "read_obj.h"
 
 using namespace std;
@@ -20,7 +21,7 @@ int main(int argc, char** argv)
 	string path = argv[1];
 
 	// get the contents of the .obj file
-	vector<vector<float>> vertices;
+	vector<Vector3> vertices;
 	vector<int> indices;
 
 	parse(vertices, indices, path);
@@ -41,7 +42,7 @@ int main(int argc, char** argv)
 			if (i % 3 == 0)
 				outfile << "TRIANGLE";
 
-			vector<float> vertex(vertices[indices[i]]);
+			Vector3 vertex(vertices[indices[i]]);
 
 			outfile << " " << vertex[0] << " " << vertex[1] << " " << vertex[2];
 

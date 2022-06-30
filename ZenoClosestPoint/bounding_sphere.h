@@ -26,8 +26,11 @@ bool contains(tuple<Vector3<double>, float> sphere, Vector3<double> vertex)
 }
 
 // return a random 3D point within a sphere (utilized by fcpw.cpp)
-Vector3<double> getRandomPoint(tuple<Vector3<double>, float> sphere)
-{
+Vector3<double> getRandomPoint(tuple<Vector3<double>, float> sphere, int seed)
+{	
+	// seed
+	srand(seed);
+
 	// randomly generate two variables between [0, 1]
 	double u = (double) rand() / RAND_MAX, v = (double) rand() / RAND_MAX;
 	
