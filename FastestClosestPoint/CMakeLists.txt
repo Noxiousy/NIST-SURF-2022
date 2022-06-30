@@ -11,3 +11,7 @@ add_subdirectory(fcpw)
 target_link_libraries(fcpw.exe fcpw)
 target_include_directories(fcpw.exe PUBLIC ${FCPW_EIGEN_INCLUDES})
 target_include_directories(fcpw.exe PUBLIC ${FCPW_ENOKI_INCLUDES})
+
+target_link_libraries(obj_to_bod.exe fcpw)
+target_include_directories(obj_to_bod.exe PUBLIC ${FCPW_EIGEN_INCLUDES})
+target_include_directories(obj_to_bod.exe PUBLIC ${FCPW_ENOKI_INCLUDES})
