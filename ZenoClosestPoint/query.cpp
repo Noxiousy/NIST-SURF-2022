@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 	AABBTree<Triangle<double>> scene;
 
 	scene.preprocess(&triangles);
-	cout << "Preprocessing time: " << (float) (clock() - t) / CLOCKS_PER_SEC << " seconds." << endl;
+	float preprocessingTime = (float) (clock() - t) / CLOCKS_PER_SEC;
 
 	// create bounding sphere
 	tuple<Vector3<double>, float> sphere;
@@ -49,6 +49,7 @@ int main(int argc, char** argv)
 	// query variables
 	bool randomization = (string(argv[3]) == "true" ? true : false);
 	int seed = stoi(argv[4]);
+	float benchmarkTime;
 	string query = argv[2];
 
 	const Triangle<double> *nearestObject;
@@ -66,7 +67,7 @@ int main(int argc, char** argv)
 			for (int i = 0; i < n; i++)
 				scene.objectsContain(getRandomPoint(sphere, seed));
 
-			t = clock() - t;
+			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
 		}
 		else if (query == "closest_point")
 		{
@@ -75,7 +76,7 @@ int main(int argc, char** argv)
 			for (int i = 0; i < n; i++)
 				scene.findNearestObject(getRandomPoint(sphere, seed), &nearestObject, &sqDistance);
 
-			t = clock() - t;
+			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
 		}
 		else
 		{
@@ -84,13 +85,12 @@ int main(int argc, char** argv)
 		}
 
 		// benchmark
-		cout << "Benchmark: " << n << " \"" << query << "\" queries in " << (float) t / CLOCKS_PER_SEC << " seconds." << endl;
-
-		cout << "Total vertices: " << vertices.size() << endl;
+		cout << n << " ZENO " << query << " queries: Preprocessing Time (" << preprocessingTime 
+			<< "s), Benchmark (" << benchmarkTime << "s), Vertices (" << vertices.size() << ")" << endl;
 	}
 	else
 	{
-		Vector3<double> queryPoint(stod(argv[5]), stod(argv[6]), stod(argv[7]));
+		Vector3<double> queryPoint(stod(argv[4]), stod(argv[5]), stod(argv[6]));
 
 		if (query == "contains")
 		{
@@ -98,9 +98,7 @@ int main(int argc, char** argv)
 
 			bool result = scene.objectsContain(queryPoint);
 
-			t = clock() - t;
-
-			cout << "Contains query result:\n" << result << endl;
+			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
 		}	
 		else if (query == "closest_point")
 		{
@@ -108,9 +106,7 @@ int main(int argc, char** argv)
 
 			scene.findNearestObject(queryPoint, &nearestObject, &sqDistance);
 
-			t = clock() - t;
-
-			cout << "Closest Point results:\nQuery Point: " << queryPoint << "\nNearest Object: " << *nearestObject << "\nSquared Distance: " << sqDistance << endl;
+			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
 		}
 		else
 		{
@@ -119,7 +115,7 @@ int main(int argc, char** argv)
 		}
 
 		// benchmark
-		cout << "Benchmark: 1 \"" << query << " query in " << (float) t / CLOCKS_PER_SEC << " seconds." << endl;
+		cout << "ZENO " << query << " query: Preprocessing Time (" << preprocessingTime << "s), Benchmark (" << benchmarkTime << ")" << endl;
 	}
 
 	return 0;

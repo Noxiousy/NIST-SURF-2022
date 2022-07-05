@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 		scene.setObjectTriangle(&indices[3 * i], i, 0);
 
 	scene.build(AggregateType::Bvh_Volume, true);
-	cout << "Preprocessing time: " << (float) (clock() - t) / CLOCKS_PER_SEC << " seconds." << endl;
+	float preprocessingTime = (float) (clock() - t) / CLOCKS_PER_SEC;
 	
 	// create a bounding sphere around the geometry
 	tuple<Vector3, float> sphere;
@@ -68,6 +68,7 @@ int main(int argc, char** argv)
 	// variables
 	bool randomization = (string(argv[3]) == "true" ? true : false);
 	int seed = stoi(argv[4]);
+	float benchmarkTime;
 	string query = argv[2];
 
 	// determine if randomization is used
@@ -87,7 +88,7 @@ int main(int argc, char** argv)
 				scene.contains(getRandomPoint(sphere, seed));
 
 			// stop timer
-			t = clock() - t;
+			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
 		}
 		else if (query == "closest_point")
 		{
@@ -101,7 +102,7 @@ int main(int argc, char** argv)
 				scene.findClosestPoint(getRandomPoint(sphere, seed), interaction);
 
 			// stop timer
-			t = clock() - t;
+			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
 		}
 		else
 		{
@@ -109,11 +110,9 @@ int main(int argc, char** argv)
 			return 0;
 		}
 
-		// print benchmark
-		cout << "Benchmark: " << n << " \"" << query << "\" queries in " << (float) t / CLOCKS_PER_SEC << " seconds." << endl;
-
-		// print vertex count
-		cout << "Total vertices: " << vertices.size() << endl;
+		// reduced output
+		cout << n << " FCPW " << query << " queries: Preprocessing Time (" << preprocessingTime 
+			<< "s), Benchmark (" << benchmarkTime << "s), Vertices (" << vertices.size() << ")" << endl;
 	}
 	else 
 	{
@@ -130,10 +129,7 @@ int main(int argc, char** argv)
 			scene.contains(queryPoint);
 
 			// stop timer
-			t = clock() - t;
-
-			// results
-			cout << "Query result:\n" << (bool) scene.contains(queryPoint) << endl;
+			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
 		}
 		else if (query == "closest_point")
 		{
@@ -146,11 +142,7 @@ int main(int argc, char** argv)
 			scene.findClosestPoint(queryPoint, interaction);
 
 			// stop timer
-			t = clock() - t;
-
-			// results
-			cout << "Query results:\nClosest Point: (" << interaction.p[0] << ", " << interaction.p[1] << ", " 
-				<< interaction.p[2] << ")\nDistance Between Query Point & Closest Point: " << interaction.d << endl;
+			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
 		}
 		else
 		{
@@ -159,8 +151,8 @@ int main(int argc, char** argv)
 		}
 
 		// print benchmark
-		cout << endl << "Benchmark: 1 \"" << query << "\" query in " << (float) t / CLOCKS_PER_SEC << " seconds." << endl;
-	}
-
+		cout << "FCPW " << query << " query: Preprocessing Time (" << preprocessingTime
+			<< "s), Benchmark (" << benchmarkTime << "s)" << endl;
+	}	
 	return 0;
 }
