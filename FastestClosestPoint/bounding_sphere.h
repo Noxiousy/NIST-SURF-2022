@@ -1,5 +1,3 @@
-// a custom implementation of Ritter's bounding sphere algorithm
-
 #include <iostream>
 #include <vector>
 #include <tuple>
