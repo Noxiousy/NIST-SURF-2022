@@ -47,36 +47,65 @@ int main(int argc, char** argv)
 	getBoundingSphere(vertices, sphere);
 
 	// query variables
-	bool randomization = (string(argv[3]) == "true" ? true : false);
-	int seed = stoi(argv[4]);
+	bool randomization = (string(argv[3]) == "true" ? true : false), saveResults = (string(argv[argc - 1]) == "true" ? true : false);
 	float benchmarkTime;
 	string query = argv[2];
 
 	const Triangle<double> *nearestObject;
 	double sqDistance = DBL_MAX;
 
+	ofstream outfile("results.txt");
+	if (saveResults)
+	{
+		for (int i = 0; i < argc; i++)
+		{
+			outfile << argv[i];
+
+			if (i == argc - 1)
+				outfile << endl;
+			else
+				outfile << " ";
+		}
+	}
+
+
 	if (randomization)
 	{
 		// run n random queries
-		int n = stoi(argv[5]);
+		int n = stoi(argv[4]), seed = stoi(argv[5]);
+
+		srand(seed);
 
 		if (query == "contains")
 		{
-			t = clock();
-
 			for (int i = 0; i < n; i++)
-				scene.objectsContain(getRandomPoint(sphere, seed));
+			{
+				t = clock();
 
-			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
+				Vector3<double> vertex = getRandomPoint(sphere);
+				bool result = scene.objectsContain(vertex);
+
+				benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
+
+				if (saveResults)
+					outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): " << (result ? "true" : "false") << endl;
+			}
 		}
 		else if (query == "closest_point")
 		{
-			t = clock();
-
 			for (int i = 0; i < n; i++)
-				scene.findNearestObject(getRandomPoint(sphere, seed), &nearestObject, &sqDistance);
+			{
+				t = clock();
 
-			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
+				Vector3<double> vertex = getRandomPoint(sphere);
+				scene.findNearestObject(vertex, &nearestObject, &sqDistance);
+
+				benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
+
+				if (saveResults)
+					outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): Distance (" << sqDistance / sqDistance
+						<< "), Closest Point ()" << endl;
+			}
 		}
 		else
 		{
@@ -90,23 +119,30 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		Vector3<double> queryPoint(stod(argv[4]), stod(argv[5]), stod(argv[6]));
+		Vector3<double> vertex(stod(argv[4]), stod(argv[5]), stod(argv[6]));
 
 		if (query == "contains")
 		{
 			t = clock();
 
-			bool result = scene.objectsContain(queryPoint);
+			bool result = scene.objectsContain(vertex);
 
 			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
+
+			if (saveResults)
+				outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): " << (result ? "true" : "false") << endl;
 		}	
 		else if (query == "closest_point")
 		{
 			t = clock();
 
-			scene.findNearestObject(queryPoint, &nearestObject, &sqDistance);
+			scene.findNearestObject(vertex, &nearestObject, &sqDistance);
 
 			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
+
+			if (saveResults)
+				outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): Distance (" << sqDistance / sqDistance
+					<< "), Closest Point ()" << endl;
 		}
 		else
 		{
@@ -117,6 +153,11 @@ int main(int argc, char** argv)
 		// benchmark
 		cout << "ZENO " << query << " query: Preprocessing Time (" << preprocessingTime << "s), Benchmark (" << benchmarkTime << ")" << endl;
 	}
+
+	if (saveResults)
+		cout << "Results saved to results.txt" << endl;
+
+	outfile.close();
 
 	return 0;
 }

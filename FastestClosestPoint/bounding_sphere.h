@@ -1,3 +1,5 @@
+// a custom implementation of Ritter's bounding sphere algorithm
+
 #include <iostream>
 #include <vector>
 #include <tuple>
@@ -23,11 +25,8 @@ bool contains(tuple<Vector3, float> sphere, Vector3 vertex)
 }
 
 // return a random 3D point within a sphere (utilized by fcpw.cpp)
-Vector3 getRandomPoint(tuple<Vector3, float> sphere, int seed)
+Vector3 getRandomPoint(tuple<Vector3, float> sphere)
 {
-	// seed
-	srand(seed);
-
 	// randomly generate two variables between [0, 1]
 	float u = (float) rand() / RAND_MAX, v = (float) rand() / RAND_MAX;
 	
