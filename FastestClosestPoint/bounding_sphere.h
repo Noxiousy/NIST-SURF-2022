@@ -27,16 +27,23 @@ bool contains(tuple<Vector3, float> sphere, Vector3 vertex)
 // return a random 3D point within a sphere (utilized by fcpw.cpp)
 Vector3 getRandomPoint(tuple<Vector3, float> sphere)
 {
-	// randomly generate two variables between [0, 1]
+	// random numbers
 	float u = (float) rand() / RAND_MAX, v = (float) rand() / RAND_MAX;
-	
-	// compute the latitude and longitude in radians
-        float lambda = acos(2 * u - 1) - (M_PI / 2), phi = 2 * M_PI * v;
-        
-	// using lambda and phi to generate the random rectangular coordinates
-	float x = cos(lambda) * cos(phi) * get<1>(sphere) + get<0>(sphere)[0];
-	float y = cos(lambda) * sin(phi) * get<1>(sphere) + get<0>(sphere)[1];
-	float z = sin(lambda) * get<1>(sphere) + get<0>(sphere)[2];
+
+	// polar coordinates
+	float theta = u * 2.0 * M_PI;
+	float phi = acos(2.0 * v - 1.0);
+	float r = (float) rand() / RAND_MAX * get<1>(sphere);
+
+	// random coordinates
+	float x = r * sin(phi) * cos(theta);
+	float y = r * sin(phi) * sin(theta);
+	float z = r * cos(phi);
+
+	// translating to center of sphere
+	x += get<0>(sphere)[0];
+	y += get<0>(sphere)[1];
+	z += get<0>(sphere)[2];
 
 	return {x, y, z};
 }
@@ -52,7 +59,7 @@ void getBoundingSphere(vector<Vector3> vertices, tuple<Vector3, float> &sphere)
 	Vector3 x(vertices[0]);
 
 	// find a point y that's furthest from x
-	int d = 0;
+	float d = -1;
 	Vector3 y;
 	for (Vector3 vertex : vertices)
 	{
@@ -64,7 +71,7 @@ void getBoundingSphere(vector<Vector3> vertices, tuple<Vector3, float> &sphere)
 	}
 
 	// find a point z that's furthest from y
-	d = 0;
+	d = -1;
 	Vector3 z;
 	for (Vector3 vertex : vertices)
 	{
