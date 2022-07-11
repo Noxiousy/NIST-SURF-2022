@@ -13,8 +13,7 @@
 using namespace std;
 using namespace fcpw;
 
-// ./fcpw.exe [obj_file] [queryType] true [# of queries] [seed] [results?]
-// ./fcpw.exe [obj_file] [queryType] false [x] [y] [z] [results?]
+// ./fcpw.exe [obj_file] [queryType] [# of queries] [seed] [results?]
 int main(int argc, char** argv)
 {
 	// list of integers to store positions
@@ -61,12 +60,11 @@ int main(int argc, char** argv)
 	tuple<Vector3, float> sphere;
 	getBoundingSphere(vertices, sphere);
 
-
 	/* ==== QUERIES ==== */
 
 	
 	// variables
-	bool randomization = (string(argv[3]) == "true" ? true : false), saveResults = (string(argv[argc - 1]) == "true" ? true : false);
+	bool saveResults = (string(argv[argc - 1]) == "true" ? true : false);
 	float benchmarkTime = 0.0;
 	string query = argv[2];
 	
@@ -85,116 +83,65 @@ int main(int argc, char** argv)
 
 	}
 
-	// determine if randomization is used
-	if (randomization)
+	// random queries
+	int seed = stoi(argv[4]), n = stoi(argv[3]);
+	srand(seed);
+	
+	// check query type	
+	if (query == "contains")
 	{
-		// random queries
-		int seed = stoi(argv[5]), n = stoi(argv[4]);
-
-		srand(seed);
-
-		// check query type
-		if (query == "contains")
+		// run n number of trails
+		for (int i = 0; i < n; i++)
 		{
-			// run n number of trails
-			for (int i = 0; i < n; i++)
-			{
-				// timer
-				t = clock();
-
-				// contains query on random point
-				Vector3 vertex = getRandomPoint(sphere);
-				bool result = scene.contains(vertex);
-
-				// sum time
-				benchmarkTime += (float) (clock() - t) / CLOCKS_PER_SEC;
-
-				// save result if specified
-				if (saveResults)
-					outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): " << (result ? "true" : "false") << endl;
-			}
-		}
-		else if (query == "closest_point")
-		{
-			Interaction<3> interaction;
-
-			// run n number of trials
-			for (int i = 0; i < n; i++)
-			{
-				// timer
-				t = clock();
-
-				// closest point query on random point
-				Vector3 vertex = getRandomPoint(sphere);
-				scene.findClosestPoint(vertex, interaction);
-
-				// sum time 
-				benchmarkTime += (float) (clock() - t) / CLOCKS_PER_SEC;
-
-				// save result if specified
-				if (saveResults)
-					outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): Distance (" << interaction.d
-						<< "), Closest Point (" << interaction.p[0] << ", " << interaction.p[1] << ", " << interaction.p[2] << ")" << endl;
-			}
-		}
-		else
-		{
-			cout << "Please enter \"contains\" or \"closest_point\" for the query argument..." << endl;
-			return 0;
-		}
-
-		// console benchmark output
-		cout << n << " FCPW " << query << " queries: Preprocessing Time (" << preprocessingTime 
-			<< "s), Benchmark (" << benchmarkTime << "s), Vertices (" << vertices.size() << ")" << endl;
-	}
-	else 
-	{
-		// non-random query
-		Vector3 vertex(stoi(argv[4]), stof(argv[5]), stof(argv[6]));
-
-		// check query type
-		if (query == "contains")
-		{
-			// begin timer
+			// timer
 			t = clock();
 
-			// query
+			// contains query on random point
+			Vector3 vertex = getRandomPoint(sphere);
 			bool result = scene.contains(vertex);
 
-			// stop timer
-			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
+			// sum time
+			benchmarkTime += (float) (clock() - t) / CLOCKS_PER_SEC;
 
+			// save result if specified
 			if (saveResults)
 				outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): " << (result ? "true" : "false") << endl;
 		}
-		else if (query == "closest_point")
+	}
+	else if (query == "closest_point")
+	{
+		Interaction<3> interaction;
+		
+		// run n number of trials
+		for (int i = 0; i < n; i++)
 		{
-			Interaction<3> interaction;
-
-			// begin timer
+			// timer
 			t = clock();
-
-			// query
+			
+			// closest point query on random point
+			Vector3 vertex = getRandomPoint(sphere);
 			scene.findClosestPoint(vertex, interaction);
 
-			// stop timer
-			benchmarkTime = (float) (clock() - t) / CLOCKS_PER_SEC;
+			// sum time 
+			benchmarkTime += (float) (clock() - t) / CLOCKS_PER_SEC;
 
-
+			// save result if specified
 			if (saveResults)
-				outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): Distance (" << interaction.d	
-					<< "), Closest Point ("	<< interaction.p[0] << ", " << interaction.p[1] << ", " << interaction.p[2] << ")" << endl;
+			{
+				outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): Distance (" << interaction.d
+					<< "), Closest Point (" << interaction.p[0] << ", " << interaction.p[1] << ", " << interaction.p[2] << ")" << endl;
+			}
 		}
-		else
-		{
-			cout << "Please enter \"contains\" or \"closest_point\" for the query argument..." << endl;
-			return 0;
-		}
+	}
+	else
+	{
+		cout << "Please enter \"contains\" or \"closest_point\" for the query argument..." << endl;
+		return 0;
+	}
 
-		// print benchmark
-		cout << "FCPW " << query << " query: Preprocessing Time (" << preprocessingTime
-			<< "s), Benchmark (" << benchmarkTime << "s)" << endl;
-	}	
+	// console benchmark output
+	cout << fixed << n << " FCPW " << query << " queries: Preprocessing Time (" << preprocessingTime 
+		<< "s), Benchmark (" << benchmarkTime << "s), Vertices (" << vertices.size() << ")" << endl;
 
 	if (saveResults)
 		cout << "Results saved to results.txt" << endl;
