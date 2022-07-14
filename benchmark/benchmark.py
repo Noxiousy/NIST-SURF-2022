@@ -2,9 +2,9 @@ import sys, os, re, subprocess, multiprocessing as mp, statistics as stat
 
 # python3 benchmark.py [obj file] [queryType] [# of queries] [outfile (optional)]
 try :
-    outfile = sys.argv[4]
+    outfile = "outfiles/" + sys.argv[4]
 except :
-    outfile = "benchmark.csv"
+    outfile = "outfiles/benchmark.csv"
 
 # multiprocessing function
 def job(cmd) :
@@ -16,7 +16,7 @@ def job(cmd) :
 
 # fcpw processes
 print("Processing FCPW commands...")
-fcpw_cmd = "./fcpw.exe " + sys.argv[1] + " " + sys.argv[2] + " true 1729 " + sys.argv[3]
+fcpw_cmd = "./fcpw.exe " + sys.argv[1] + " " + sys.argv[2] + " 1729 " + sys.argv[3] + "false"
 
 p = mp.Pool(mp.cpu_count())
 fcpw_data = p.map(job, [fcpw_cmd for i in range(15)])
@@ -24,7 +24,7 @@ p.close()
 
 # zeno processes
 print("Processing ZENO commands...")
-zeno_cmd = "./zeno.exe " + sys.argv[1] + " " + sys.argv[2] + " true 1729 " + sys.argv[3]
+zeno_cmd = "./zeno.exe " + sys.argv[1] + " " + sys.argv[2] + " 1729 " + sys.argv[3] + "false"
 
 p = mp.Pool(mp.cpu_count())
 zeno_data = p.map(job, [zeno_cmd for i in range(15)])
