@@ -105,7 +105,7 @@ int main(int argc, char** argv)
 
 			// save result if specified
 			if (saveResults)
-				outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): " << (result ? "true" : "false") << endl;
+				outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): " << (result ? "(true)" : "(false)") << endl;
 		}
 	}
 	else if (query == "closest_point")
@@ -128,8 +128,7 @@ int main(int argc, char** argv)
 			// save result if specified
 			if (saveResults)
 			{
-				outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): Distance (" << interaction.d
-					<< "), Closest Point (" << interaction.p[0] << ", " << interaction.p[1] << ", " << interaction.p[2] << ")" << endl;
+				outfile << "(" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << "): Distance (" << interaction.d << ")" << endl;
 			}
 		}
 	}
