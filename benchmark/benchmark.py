@@ -38,13 +38,13 @@ with open(outfile, "w") as csv :
 
     def write_stats(data, comment) :
         csv.write(comment)
-        csv.write(str(stat.mean(data)))
-        csv.write(", " + str(stat.median(data)))
-        csv.write(", " + str(min(data)))
-        csv.write(", " + str(max(data)))
-        csv.write(", " + str(stat.stdev(data)) + "\n")
+        csv.write(str(f'{stat.mean(data):.8f}'))
+        csv.write(", " + str(f'{stat.median(data):.8f}'))
+        csv.write(", " + str(f'{min(data):.8f}'))
+        csv.write(", " + str(f'{max(data):.8f}'))
+        csv.write(", " + str(f'{stat.stdev(data):.8f}') + "\n")
 
-    write_stats(fcpw_data[:][0], "\n# FCPW Preprocessing Times\n")
-    write_stats(fcpw_data[:][1], "\n# FCPW Benchmark Times\n")
-    write_stats(zeno_data[:][0], "\n# ZENO Preprocessing Times\n")
-    write_stats(zeno_data[:][1], "\n# ZENO Benchmark Times\n")
+    write_stats([i[0] for i in fcpw_data], "\n# FCPW Preprocessing Times\n")
+    write_stats([i[1] for i in fcpw_data], "\n# FCPW Benchmark Times\n")
+    write_stats([i[0] for i in zeno_data], "\n# ZENO Preprocessing Times\n")
+    write_stats([i[1] for i in zeno_data], "\n# ZENO Benchmark Times\n")
