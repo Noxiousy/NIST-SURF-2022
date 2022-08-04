@@ -1,15 +1,23 @@
-import os, sys, numpy as np, subprocess, math, matplotlib.pyplot as plt
+import os, sys, pandas as pd, numpy as np, subprocess, math, matplotlib.pyplot as plt
 
 # python3 [.obj files] [queryType]
-obj_files = os.listdir(sys.argv[1])
-obj_files = sorted(obj_files, key = lambda x : os.stat(sys.argv[1] + x).st_size)
+df = pd.DataFrame({".obj files" : os.listdir(sys.argv[1])})
 
-prep_means = [[], []]
-prep_stdevs = [[], []]
-query_means = [[], []]
-query_stdevs = [[], []]
+df["FCPW Preprocessing"] = np.nan
+df["FCPW Query Mean"] = np.nan
+df["FCPW Query Stdev"] = np.nan
+df["Zeno Preprocessing"] = np.nan
+df["Zeno Query Mean"] = np.nan
+df["Zeno Query Stdev"] = np.nan
+df["Triangle Count"] = np.nan
+df["Vertex Count"] = np.nan
 
-for obj_file in obj_files :
+df.set_index(".obj files", inplace = True)
+df.index.names = [None]
+
+n = math.sqrt(15) # for computing avg stdev
+
+for obj_file in df.index :
     print("Fetching", obj_file, "benchmarks...")
     subprocess.call("python3 benchmark.py ../obj_files/" + obj_file + " " + sys.argv[2] + " 10000000", shell = True, stdout = subprocess.PIPE)
 
@@ -19,60 +27,59 @@ for obj_file in obj_files :
         fcpw_prep = lines[3].split(", "); zeno_prep = lines[9].split(", ")
         fcpw_query = lines[6].split(", "); zeno_query = lines[12].split(", ")
 
-        prep_means[0].append(float(fcpw_prep[0]))
-        prep_means[1].append(float(zeno_prep[0]))
-        prep_stdevs[0].append(float(fcpw_prep[4]) / math.sqrt(15))
-        prep_stdevs[1].append(float(zeno_prep[4]) / math.sqrt(15))
+        df.loc[obj_file] = [float(fcpw_prep[0]), float(fcpw_query[0]), float(fcpw_query[4]) / n,
+                        float(zeno_prep[0]), float(zeno_query[0]), float(zeno_query[4]) / n,
+                        int(lines[18]), int(lines[15])]
 
-        query_means[0].append(float(fcpw_query[0]))
-        query_means[1].append(float(zeno_query[0]))
-        query_stdevs[0].append(float(fcpw_query[4]) / math.sqrt(15))
-        query_stdevs[1].append(float(zeno_query[4]) / math.sqrt(15))
+# sort rows by triangle count
+df.sort_values(by = ["Vertex Count"], inplace = True)
 
 # double bar plot for average preprocessing times
-x = np.arange(len(obj_files))
-width = 0.35
-
-fig, ax = plt.subplots()
-ax.bar(x - width / 2, prep_means[0], width, yerr = prep_stdevs[0], label = "FCPW")
-ax.bar(x + width / 2, prep_means[1], width, yerr = prep_stdevs[1], label = "Zeno")
-
-ax.set_ylim(bottom = 0)
+ax = df.plot(y = ["FCPW Preprocessing", "Zeno Preprocessing"], label = ["FCPW", "Zeno"], kind = "bar")
 ax.set_ylabel("Time (seconds)")
 ax.set_xlabel(".obj files")
+ax.tick_params("x", rotation = 60)
 ax.set_title("Average FCPW & Zeno Preprocessing Times")
-ax.set_xticks(x, obj_files)
-ax.legend()
-
-fig.tight_layout()
+ax.get_figure().tight_layout()
 plt.savefig("preprocessing.png")
 
 # double bar plot for average query times
-fig, ax = plt.subplots()
-ax.bar(x - width / 2, query_means[0], width, yerr = query_stdevs[0], label = "FCPW")
-ax.bar(x + width / 2, query_means[1], width, yerr = query_stdevs[1], label = "Zeno")
-
-ax.set_ylim(bottom = 0)
+ax = df.plot(y = ["FCPW Query Mean", "Zeno Query Mean"], label = ["FCPW", "Zeno"], yerr = [df["FCPW Query Stdev"], df["Zeno Query Stdev"]], kind = "bar")
 ax.set_ylabel("Time (seconds)")
-ax.set_xlabel("Number of Vertices per .obj file")
+ax.set_xlabel(".obj file")
+ax.tick_params("x", rotation = 60)
 ax.set_title("Average Time for 10M Closest Point Queries")
-ax.set_xticks(x, obj_files)
-ax.legend()
-
-fig.tight_layout()
+ax.get_figure().tight_layout()
 plt.savefig("query.png")
 
-# bar plot for ratio query times (zeno to fcpw)
-ratio = [i / j for (i, j) in zip(query_means[1], query_means[0])]
+# ratio (Zeno to FCPW)
+x = np.arange(len(df.index))
+ratio = [row["Zeno Query Mean"] / row["FCPW Query Mean"] for _, row in df.iterrows()]
 
 fig, ax = plt.subplots()
-ax.bar(x, ratio, width)
-
+ax.bar(x, ratio, width = 0.5)
 ax.set_ylim(bottom = 0)
 ax.set_ylabel("Ratio (Zeno to FCPW)")
 ax.set_xlabel(".obj files")
-ax.set_title("Ratio of Average Query Times")
-ax.set_xticks(x, obj_files)
+ax.tick_params("x", rotation = 60)
+ax.set_title("Speed Up of Average Query Times")
+ax.set_xticks(x, df.index)
 
 fig.tight_layout()
 plt.savefig("ratio.png")
+
+# save data
+with open("data.txt", "w") as txt :
+    txt.write("Preprocessing:\n")
+    txt.write(str(df["FCPW Preprocessing"]) + "\n")
+    txt.write(str(df["Zeno Preprocessing"]) + "\n")
+
+    txt.write("\nQueries:\n")
+    txt.write(str(df["FCPW Query Mean"]) + "\n")
+    txt.write(str(df["FCPW Query Stdev"]) + "\n")
+    txt.write(str(df["Zeno Query Mean"]) + "\n")
+    txt.write(str(df["Zeno Query Stdev"]) + "\n") 
+    
+    txt.write("\n.obj files:\n")
+    for i, row in df.iterrows() :
+        txt.write(": Vertices (" + str(row["Vertex Count"]) + "), Triangles (" + str(row["Triangle Count"]) + ")\n")
