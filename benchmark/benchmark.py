@@ -11,8 +11,10 @@ def job(cmd) :
     process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
     out = process.communicate()[0].decode("utf-8")  # get output from process, decode to string
 
-    # return second and third numbers of stdout (preprocessing and benchmark times)
-    return [float(re.findall("\d+.\d+", out)[1]), float(re.findall("\d+.\d+", out)[2])]
+    results = re.findall("\d+.\d+", out)
+    triangle_count, vertex_count = re.findall("\d+", out)[-2], re.findall("\d+", out)[-1]
+
+    return [float(results[0]), float(results[1]), int(triangle_count), int(vertex_count)]
 
 # fcpw processes
 print("Processing FCPW commands...")
@@ -48,3 +50,7 @@ with open(outfile, "w") as csv :
     write_stats([i[1] for i in fcpw_data], "\n# FCPW Benchmark Times\n")
     write_stats([i[0] for i in zeno_data], "\n# ZENO Preprocessing Times\n")
     write_stats([i[1] for i in zeno_data], "\n# ZENO Benchmark Times\n")
+
+    # adding vertex count to csv
+    csv.write("\n# Vertices in this .obj file\n" + str(fcpw_data[0][3]) + "\n")
+    csv.write("\n# Triangles in this model\n" + str(fcpw_data[0][2]) + "\n")
