@@ -26,6 +26,7 @@ int main(int argc, char** argv)
 
 	// store Triangles
 	vector<Triangle<double>> triangles;
+	int nTriangles = indices.size() / 3;
 
 	for (int i = 0; i < indices.size(); i += 3)
 	{
@@ -108,8 +109,8 @@ int main(int argc, char** argv)
 	}
 	
 	// benchmark
-	cout << fixed << n << " ZENO " << query << " queries: Preprocessing Time (" << preprocessingTime 
-		<< "s), Benchmark (" << benchmarkTime << "s), Vertices (" << vertices.size() << ")" << endl;
+	cout << fixed << "Preprocessing Time (" << preprocessingTime << "s), Benchmark (" 
+		<< benchmarkTime << "s), Triangle Count (" << nTriangles << "), Vertices (" << vertices.size() << ")" << endl;
 
 	if (saveResults)
 		cout << "Results saved to results.txt" << endl;
