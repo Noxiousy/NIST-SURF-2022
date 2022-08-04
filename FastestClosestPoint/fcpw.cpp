@@ -80,7 +80,6 @@ int main(int argc, char** argv)
 			else
 				outfile << argv[i] << endl;
 		}	
-
 	}
 
 	// random queries
@@ -139,8 +138,8 @@ int main(int argc, char** argv)
 	}
 
 	// console benchmark output
-	cout << fixed << n << " FCPW " << query << " queries: Preprocessing Time (" << preprocessingTime 
-		<< "s), Benchmark (" << benchmarkTime << "s), Vertices (" << vertices.size() << ")" << endl;
+	cout << fixed << "Preprocessing Time (" << preprocessingTime << "s), Benchmark (" 
+		<< benchmarkTime << "s), Triangle Count (" << nTriangles << ")" << ", Vertices (" << vertices.size() << ")" << endl;
 
 	if (saveResults)
 		cout << "Results saved to results.txt" << endl;
