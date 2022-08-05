@@ -13,7 +13,7 @@ internal library. The library will be compared to an open-source one known as Th
 West (FCPW).
 
 Our research has shown that FCPW is the more efficient library. However, these results were obtained with limitations to
-both libraries in order to bear similarities in the process (see Results section for more details).
+both libraries in order to bear similarities in the process (see `benchmark/README.md` section for more details).
 
 ---
 
